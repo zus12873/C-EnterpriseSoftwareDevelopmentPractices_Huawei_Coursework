@@ -1,4 +1,7 @@
-#include "ExecutorImpl.hpp" 
+#include "ExecutorImpl.hpp"
+
+#include <memory>
+
 namespace adas
 {
     bool isFast = false;
@@ -24,47 +27,25 @@ namespace adas
                 if (isFast) {
                     Move();
                 }
-            Move();
+                std::unique_ptr<MoveCommand> cmder = std::make_unique<MoveCommand>();
+
+                cmder->DoOperate(*this);
+
             } else if (cmd == 'L') {
                 if (isFast) {
                     Move();
                 }
-                if (pose.heading == 'E')
-                {
-                    pose.heading = 'N';                
-                }
-                else if (pose.heading == 'N')
-                {
-                    pose.heading = 'W';      
-                }
-                else if (pose.heading == 'W')
-                {
-                    pose.heading = 'S';     
-                }
-                else if (pose.heading == 'S')
-                {
-                    pose.heading = 'E';    
-                }
+                std::unique_ptr<TurnLeftCommand> cmder = std::make_unique<TurnLeftCommand>();
+
+                cmder->DoOperate(*this);
 
             } else if (cmd == 'R') {
                 if(isFast) {
                     Move();
                 }
-                if (pose.heading == 'E') {
-                    pose.heading = 'S';                  
-                }
-                else if (pose.heading == 'S')
-                {
-                    pose.heading = 'W';                 
-                }
-                else if (pose.heading == 'W')
-                {
-                    pose.heading = 'N';         
-                }
-                else if (pose.heading == 'N')
-                {
-                    pose.heading = 'E';              
-                }
+                std::unique_ptr<TurnRightCommand> cmder = std::make_unique<TurnRightCommand>();
+
+                cmder->DoOperate(*this);
             }
             }
     }
@@ -87,7 +68,31 @@ namespace adas
                     --pose.y;   
         }
     }
-
+    void ExecutorImpl::TurnLeft() noexcept
+    {
+        if (pose.heading == 'E') {
+            pose.heading = 'N';
+        } else if (pose.heading == 'W') {
+            pose.heading = 'S';
+        } else if (pose.heading == 'N') {
+            pose.heading = 'W';
+        } else if (pose.heading == 'S') {
+            pose.heading = 'E';
+        }
+    }
+    
+    void ExecutorImpl::TurnRight() noexcept
+    {
+        if (pose.heading == 'E') {
+            pose.heading = 'S';
+        } else if (pose.heading == 'W') {
+            pose.heading = 'N';
+        } else if (pose.heading == 'N') {
+            pose.heading = 'E';
+        } else if (pose.heading == 'S') {
+            pose.heading = 'W';
+        }
+    }
     Pose ExecutorImpl::Query() const noexcept
     {
         return pose;
