@@ -4,7 +4,7 @@
 
 namespace adas
 {
-    bool isFast = false;
+    
     Executor* Executor::NewExecutor(const Pose& pose) noexcept
     {
             return new (std::nothrow) ExecutorImpl(pose);
@@ -18,29 +18,25 @@ namespace adas
     {
             for (const auto cmd : commands){
                 std::unique_ptr<ICommand> cmder;
-                if (cmd == 'F') {
-                    isFast = !isFast;
-            }
+           
             if (cmd == 'M')
             {
-                if (isFast) {
-                    Move();
-                }
+              
                 cmder = std::make_unique<MoveCommand>();
 
             } else if (cmd == 'L') {
-                if (isFast) {
-                    Move();
-                }
+             
                 cmder = std::make_unique<TurnLeftCommand>();
 
             } else if (cmd == 'R') {
-                if(isFast) {
-                    Move();
-                }
+              
                 cmder = std::make_unique<TurnRightCommand>();
 
+            } else if (cmd == 'F') {
+                cmder = std::make_unique<FastCommand>();
+                 
             }
+
             if (cmder)
             {
                 cmder->DoOperate(*this);
@@ -95,6 +91,14 @@ namespace adas
     Pose ExecutorImpl::Query() const noexcept
     {
         return pose;
+    }
+    void ExecutorImpl::Fast() noexcept
+    {
+         fast = !fast;
+    }
+    bool ExecutorImpl::IsFast() const noexcept
+    {
+         return fast;
     }
 
     }  // namespace adas
