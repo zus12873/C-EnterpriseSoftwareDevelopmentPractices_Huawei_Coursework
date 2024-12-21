@@ -38,7 +38,7 @@ private:
             void DoOperate(ExecutorImpl& executor) const noexcept override
             {
                 if (executor.IsFast()) {
-                       executor.Move();  
+                executor.Move();  
                 }
                 executor.Move();
             }
@@ -48,11 +48,12 @@ private:
         {
         public :
                 void DoOperate(ExecutorImpl & executor) const noexcept override
-        {
-                executor.TurnRight();
-                
-                
-        }
+                {
+                    if (executor.IsFast()) {
+                        executor.Move();
+                    }
+                    executor.TurnRight();
+                }
 
         };  // namespace adas
 
@@ -60,11 +61,12 @@ private:
         {
         public :
                 void DoOperate(ExecutorImpl & executor) const noexcept override
-        {
-                executor.TurnLeft();
-
-        }
-
+                {
+                    if (executor.IsFast()) {
+                        executor.Move();
+                    }
+                    executor.TurnLeft();
+                }
         };
         class FastCommand final : public ICommand
         {
