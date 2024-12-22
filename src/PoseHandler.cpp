@@ -1,89 +1,73 @@
 #include "PoseHandler.hpp"
+
 namespace adas
 {
-PoseHandler::PoseHandler(const Pose& pose) noexcept : pose(pose)
+PoseHandler::PoseHandler(const Pose& pose, Vehicle _vehicle) noexcept
+    : vehicle(_vehicle), head(pose.x, pose.y), tail(pose.x, pose.y), facing(&Direction::GetDirection(pose.heading))
 {
+    Settail();
 }
-void PoseHandler::Move() noexcept
-{
-     if (pose.heading == 'E')
-    {
-          ++pose.x;
-        
-    }
-    else if (pose.heading == 'W')
-    {
-          --pose.x;
-        
-    }
-    else if (pose.heading == 'N')
-    {
-          ++pose.y;
-        
-    }
-    else if (pose.heading == 'S')
-    {
-          --pose.y;
-        
-    }
-}
-void PoseHandler::TurnLeft() noexcept
-{
-     if (pose.heading == 'E')
-    {
-          pose.heading = 'N';
-        
-    }
-    else if (pose.heading == 'N')
-    {
-          pose.heading = 'W';
-        
-    }
-    else if (pose.heading == 'W')
-    {
-          pose.heading = 'S';
-        
-    }
-    else if (pose.heading == 'S')
-    {
-          pose.heading = 'E';
-        
-    }
-}
+
 void PoseHandler::TurnRight() noexcept
 {
-     if (pose.heading == 'E')
-    {
-          pose.heading = 'S';
-        
-    }
-    else if (pose.heading == 'S')
-    {
-          pose.heading = 'W';
-        
-    }
-    else if (pose.heading == 'W')
-    {
-          pose.heading = 'N';
-        
-    }
-    else if (pose.heading == 'N')
-    {
-          pose.heading = 'E';
-        
-    }
+    facing = &(facing->RightOne());
+    Settail();
 }
-Pose PoseHandler::Query() const noexcept
+
+void PoseHandler::TurnLeft() noexcept
 {
-     return pose;
+    facing = &(facing->LeftOne());
+    Settail();
+}
+
+void PoseHandler::Forward() noexcept
+{
+    head += facing->Move();
+    Settail();
+}
+
+void PoseHandler::Backward() noexcept
+{
+    head -= facing->Move();
+    Settail();
 }
 
 void PoseHandler::Fast() noexcept
 {
-     fast = !fast;
+    fast = !fast;
 }
+
+void PoseHandler::Reverse() noexcept
+{
+    reverse = !reverse;
+}
+
+void PoseHandler::Settail() noexcept
+{
+    if (vehicle == bus) {
+        tail = head + facing->offset();
+    } else {
+        tail = head;
+    }
+}
+
+bool PoseHandler::IsReverse() noexcept
+{
+    return reverse;
+}
+
 bool PoseHandler::IsFast() const noexcept
 {
-     return fast;
+    return fast;
 }
-}  // namespace adas// namespace adas
+
+Pose PoseHandler::QueryHead(void) const noexcept
+{
+    return Pose(head.GetX(), head.GetY(), facing->GetHeading());
+}
+
+Pose PoseHandler::QueryTail(void) const noexcept
+{
+    return Pose(tail.GetX(), tail.GetY(), facing->GetHeading());
+}
+}  // namespace adas

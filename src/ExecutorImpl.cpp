@@ -1,73 +1,29 @@
+#include "CmderFactory.hpp"
 #include "ExecutorImpl.hpp"
-
-#include <memory>
-#include <unordered_map>
-#include "Command.hpp"
-
+#include "Singleton.hpp"
+#include "algorithm"
+#include "memory"
 namespace adas
 {
-    
-    Executor* Executor::NewExecutor(const Pose& pose) noexcept
-    {
-            return new (std::nothrow) ExecutorImpl(pose);
-    }
-    ExecutorImpl::ExecutorImpl(const Pose& pose) noexcept : 
-    poseHandler(pose)
-    {
-    }
-
-    void ExecutorImpl::Execute(const std::string& commands) 
-    noexcept
-
-    {
-        const std::unordered_map<char, std::function<void(PoseHandler & poseHandler)>> cmderMap{
-        {'M', MoveCommand()},
-        {'L', TurnLeftCommand()},
-        {'R', TurnRightCommand()},
-        {'F', FastCommand()},
-        };
-         for (const auto cmd : commands)
-        {
-              const auto it = cmderMap.find(cmd);
-              if (it != cmderMap.end())
-            {
-                   it->second(poseHandler);
-                 
-            }
-            
-        }
-
-            // for (const auto cmd : commands){
-            //     std::unique_ptr<ICommand> cmder;
-           
-            // if (cmd == 'M')
-            // {
-              
-            //     cmder = std::make_unique<MoveCommand>();
-
-            // } else if (cmd == 'L') {
-             
-            //     cmder = std::make_unique<TurnLeftCommand>();
-
-            // } else if (cmd == 'R') {
-              
-            //     cmder = std::make_unique<TurnRightCommand>();
-
-            // } else if (cmd == 'F') {
-            //     cmder = std::make_unique<FastCommand>();
-                 
-            // }
-
-            // if (cmder)
-            // {
-            //     cmder->DoOperate(poseHandler);
-            //             }
-            // }
-    }
-
-    Pose ExecutorImpl::Query() const noexcept
-    {
-        return poseHandler.Query();
-
-    }  // namespace adas
+Executor* Executor::NewExecutor(const Pose& pose, const Vehicle vehicle) noexcept
+{
+    return new (std::nothrow) Executorlmpl(pose, vehicle);
 }
+Executorlmpl::Executorlmpl(const Pose& pose, const Vehicle vehicle) noexcept : poseHandler(pose, vehicle)
+{
+}
+void Executorlmpl::Execute(const std::string& command) noexcept
+{
+    const auto cmders = Singleton<CmderFactory>::Instance().GetCmders(command);
+    std::for_each(cmders.begin(), cmders.end(),
+                  [this](const Cmder& cmder) noexcept { cmder(poseHandler).DoOperate(poseHandler); });
+}
+Pose Executorlmpl::QueryHead(void) const noexcept
+{
+    return poseHandler.QueryHead();
+}
+Pose Executorlmpl::QueryTail(void) const noexcept
+{
+    return poseHandler.QueryTail();
+}
+}  // namespace adas

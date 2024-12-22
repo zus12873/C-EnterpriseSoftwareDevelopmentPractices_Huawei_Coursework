@@ -1,40 +1,38 @@
-#pragma once 
-#include "Executor.hpp" 
+#pragma once
+#include "Direction.hpp"
+#include "Executor.hpp"
+#include "Point.hpp"
+
 namespace adas
 {
-    class PoseHandler final
-    {
-    public:
-        PoseHandler(const Pose& pose) noexcept;
-        PoseHandler(const PoseHandler&) = delete;
-        PoseHandler& operator=(const PoseHandler&) = delete;
+class PoseHandler final
+{
+public:
+    PoseHandler(const Pose& pose, Vehicle vehicle) noexcept;
+    PoseHandler(const PoseHandler&) = delete;
+    PoseHandler& operator=(const PoseHandler&) = delete;
 
-    public:
-        void Move(void) noexcept;
-        void TurnLeft(void) noexcept;
-        void TurnRight(void) noexcept;
-        void Fast(void) noexcept;
-        bool IsFast(void) const noexcept;
-        Pose Query(void) const noexcept;
+public:
+    void Forward() noexcept;
+    void Backward() noexcept;
+    void TurnRight() noexcept;
+    void TurnLeft() noexcept;
+    void Fast() noexcept;
+    void Reverse() noexcept;
+    bool IsReverse() noexcept;
+    bool IsFast() const noexcept;
+    void Settail() noexcept;
+    Pose QueryHead(void) const noexcept;
+    Pose QueryTail(void) const noexcept;
 
-    private:
-       Pose pose;
-       bool fast{false};
-    };
-    class Point final
-    {
-    public:
-        Point(const int x, const int y) noexcept;
-        Point(const Point& rhs) noexcept;
-        Point& operator=(const Point& rhs) noexcept;
-        Point& operator+=(const Point& rhs) noexcept;
+public:
+    Vehicle vehicle;  // vehicle should be initialized first
 
-    public:
-        int GetX(void) const noexcept;
-        int GetY(void) const noexcept;
-
-    private:
-        int x;
-        int y;
-    };
+private:
+    Point head;
+    Point tail;
+    const Direction* facing;  // facing is const and can be initialized properly
+    bool fast{false};
+    bool reverse{false};
+};
 }  // namespace adas
