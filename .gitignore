@@ -15,9 +15,10 @@
 src/main
 tags
 tests/googletest
-
+CMakeLists.txt
+.clang-format
 cmake-build-debug
-
+.vscode
 ### IntelliJ IDEA ###
 .idea
 *.iws
